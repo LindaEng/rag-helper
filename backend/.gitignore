@@ -1,0 +1,21 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Uploaded files
+uploads/
+
+# Database files
+chroma_db/
+*.db
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.DS_Store
+
+# Model cache (this is big - 90MB)
+.cache/
