@@ -88,7 +88,7 @@ Your API will be live at `http://localhost:8000`
 
 ```bash
 cd frontend
-npm start
+npm run dev
 ```
 
 ## 📤 Upload Your PDF
