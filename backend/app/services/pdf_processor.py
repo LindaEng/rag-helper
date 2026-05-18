@@ -1,37 +1,36 @@
-import fitz  # PyMuPDF
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+import fitz
 import os
 
 def process_pdf(file_path: str):
     """Extract text from PDF and split into chunks"""
     
-    # Open the PDF
     doc = fitz.open(file_path)
     full_text = []
     
-    # Get text from each page
     for page_num, page in enumerate(doc):
         text = page.get_text()
         if text.strip():
             full_text.append(f"Page {page_num + 1}\n{text}")
     
     doc.close()
-    
-    # Combine all pages
     combined_text = "\n\n".join(full_text)
     
-    # Split into chunks
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,      # Each chunk about 1000 characters
-        chunk_overlap=200,    # Overlap between chunks (preserves context)
-        separators=["\n\n", "\n", ". ", " ", ""]
-    )
+    # Simple chunking
+    chunks = []
+    chunk_size = 1000
+    paragraphs = combined_text.split('\n\n')
     
-    chunks = splitter.split_text(combined_text)
+    current_chunk = ""
+    for para in paragraphs:
+        if len(current_chunk) + len(para) < chunk_size:
+            current_chunk += para + "\n\n"
+        else:
+            if current_chunk:
+                chunks.append(current_chunk)
+            current_chunk = para + "\n\n"
     
-    # Delete the temporary PDF file
+    if current_chunk:
+        chunks.append(current_chunk)
+    
     os.unlink(file_path)
-    
     return chunks
-
-# Splits the textbook into bite-sized pieces.
