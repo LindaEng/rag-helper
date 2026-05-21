@@ -8,6 +8,7 @@ function App() {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [asking, setAsking] = useState(false);
+  const [pages, setPages] = useState(false);
 
   const handleUpload = async () => {
     if (!file) {
@@ -49,6 +50,7 @@ function App() {
       });
 
       const data = await response.json();
+      console.log("MY DATAAA ", data)
       setAnswer(data.answer);
     } catch (error) {
       setAnswer('❌ Failed to get answer. Make sure the backend is running');
@@ -86,10 +88,17 @@ function App() {
         <button onClick={handleAsk} disabled={asking}>
           {asking ? 'Thinking...' : 'Ask'}
         </button>
-        {answer && (
+        {answer && !pages && (
           <div style={{ marginTop: '20px', background: '#f5f5f5', padding: '15px', borderRadius: '5px' }}>
             <strong>Answer:</strong>
             <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{answer}</pre>
+            <button onClick={() => setPages(true)}>Show Original Page's</button>
+          </div>
+        )}
+        {pages && (
+          <div style={{ marginTop: '20px', background: '#f5f5f5', padding: '15px', borderRadius: '5px' }}>
+            <p>I GOT CLICKED</p>
+            <button onClick={() => setPages(false)}>Show LLM response</button>
           </div>
         )}
       </div>
