@@ -25,7 +25,7 @@ class VectorDatabase:
 
 db = VectorDatabase()
 
-def add_documents(chunks, filename):
+def add_documents(chunks, chunks_with_pages, filename):
     """Store document chunks with their embeddings"""
     
     client = db.get_client()
@@ -35,14 +35,15 @@ def add_documents(chunks, filename):
     
     # Create points for Qdrant
     points = []
-    for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+    for i, (chunk, chunk_info, embedding) in enumerate(zip(chunks, chunks_with_pages, embeddings)):
         points.append(PointStruct(
             id=str(uuid.uuid4()),
             vector=embedding,
             payload={
                 "content": chunk,
                 "source": filename,
-                "chunk_index": i
+                "chunk_index": i,
+                "page_number": chunk_info["page"]
             }
         ))
     
