@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import './App.css';
 
+type Source = {
+  content: string;
+  source: string;
+  similarity_score?: number;
+  page_number?: number;
+  payload?: {
+    page_number: number;
+  }
+}
+
 function App() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -8,7 +18,9 @@ function App() {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [asking, setAsking] = useState(false);
-  const [pages, setPages] = useState(false);
+  const [pageToggle, setPageToggle] = useState(false);
+  const [sources, setSources] = useState<Source[]>([]);
+
 
   const handleUpload = async () => {
     if (!file) {
@@ -52,6 +64,7 @@ function App() {
       const data = await response.json();
       console.log("MY DATAAA ", data)
       setAnswer(data.answer);
+      setSources(data.sources);
     } catch (error) {
       setAnswer('❌ Failed to get answer. Make sure the backend is running');
     } finally {
@@ -88,17 +101,42 @@ function App() {
         <button onClick={handleAsk} disabled={asking}>
           {asking ? 'Thinking...' : 'Ask'}
         </button>
-        {answer && !pages && (
+        {answer && !pageToggle && (
           <div style={{ marginTop: '20px', background: '#f5f5f5', padding: '15px', borderRadius: '5px' }}>
             <strong>Answer:</strong>
             <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{answer}</pre>
-            <button onClick={() => setPages(true)}>Show Original Page's</button>
+            <button onClick={() => setPageToggle(true)}>Show Original Page's ({sources.length} sources)</button>
           </div>
         )}
-        {pages && (
+        {pageToggle && (
           <div style={{ marginTop: '20px', background: '#f5f5f5', padding: '15px', borderRadius: '5px' }}>
-            <p>I GOT CLICKED</p>
-            <button onClick={() => setPages(false)}>Show LLM response</button>
+            <strong>Original Sources</strong>
+              <div style={{ marginTop: '10px', marginBottom: '15px' }}>
+                {sources.filter((source) => source.similarity_score > 0.1)
+                .map((source, idx) => (
+                  <div key={idx} style={{ 
+                    border: '1px solid #ddd', 
+                    padding: '12px', 
+                    marginBottom: '10px', 
+                    borderRadius: '5px',
+                    background: 'white'
+                  }}>
+                    <div style={{ fontWeight: 'bold', color: '#007bff', marginBottom: '8px' }}>
+                      Page {source.page_number || 'Unknown'}
+                      {source.similarity_score && (
+                        <span style={{ fontSize: '12px', marginLeft: '10px', color: '#666' }}>
+                        (relevance: {(source.similarity_score * 100).toFixed(0)}%)
+                        </span>
+                      )}
+                    </div>
+                      <div style={{ fontSize: '14px', lineHeight: '1.5' }}>
+                        {source.content.substring(0, 5000)}...
+                      </div>                    
+                  </div>
+                ))
+                }
+              </div>
+            <button onClick={() => setPageToggle(false)}>Show LLM response</button>
           </div>
         )}
       </div>

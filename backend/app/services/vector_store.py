@@ -77,7 +77,8 @@ def search_similar(query, n_results=3):
         similar_chunks.append({
             "content": result.payload["content"],
             "source": result.payload["source"],
-            "similarity_score": result.score
+            "similarity_score": result.score,
+            "page_number": result.payload.get("page_number", "Unknown")
         })
     
     return similar_chunks

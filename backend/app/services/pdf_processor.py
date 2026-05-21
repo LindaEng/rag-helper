@@ -2,24 +2,28 @@ import fitz
 import os
 
 def process_pdf(file_path: str):
-    ''' Extracts text from PDF and splits into chunks with page numbers'''
-
+    """Extract text from PDF and split into chunks"""
+    
     doc = fitz.open(file_path)
-
     chunks_with_pages = []
-
+    seen_text = set()  # Track seen content
+    
     for page_num, page in enumerate(doc):
         text = page.get_text()
-        if text.strip(): #skips blank pages
+        if text.strip():
             page_chunks = split_text_with_page(text, page_num + 1)
-            chunks_with_pages.extend(page_chunks)
+            
+            # Deduplicate chunks
+            for chunk in page_chunks:
+                # Create a simple hash of first 200 chars
+                content_hash = chunk["text"][:200]
+                if content_hash not in seen_text:
+                    seen_text.add(content_hash)
+                    chunks_with_pages.append(chunk)
     
     doc.close()
-
     chunks = [chunk["text"] for chunk in chunks_with_pages]
-
     os.unlink(file_path)
-    # return page metadata for later use
     return chunks, chunks_with_pages
 
 def split_text_with_page(text: str, page_num: int, chunk_size: int = 1000):
