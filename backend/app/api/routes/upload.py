@@ -24,8 +24,8 @@ async def upload_pdf(file: UploadFile = File(...)):
         f.write(content)
     
     # Process the PDF (extract text, chunk, embed, store)
-    chunks = process_pdf(temp_path)
-    chunk_count = add_documents(chunks, file.filename)
+    chunks, chunks_with_pages = process_pdf(temp_path)
+    chunk_count = add_documents(chunks, chunks_with_pages, file.filename)
     
     return {
         "message": "PDF processed successfully",
