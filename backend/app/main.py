@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import upload, chat
+from app.api.routes import upload, chat, documents
 
 app = FastAPI(title="RAG PDF Assistant", version="1.0.0")
 
@@ -16,6 +17,7 @@ app.add_middleware(
 # Connect our routes
 app.include_router(upload.router, prefix="/api", tags=["upload"])
 app.include_router(chat.router, prefix="/api", tags=["chat"])
+app.include_router(documents.router, prefix="/api", tags=["documents"])
 
 @app.get("/")
 async def root():

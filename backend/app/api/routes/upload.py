@@ -2,6 +2,8 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from app.services.pdf_processor import process_pdf
 from app.services.vector_store import add_documents
 from app.services.s3_service import s3_service
+from app.core.database import SessionLocal
+from app.core.models import PDFDocument
 import io
 
 router = APIRouter()
@@ -26,6 +28,15 @@ async def upload_pdf(file: UploadFile = File(...)):
     # Process the PDF from bytes
     chunks, chunks_with_pages = process_pdf(io.BytesIO(content))
     chunk_count = add_documents(chunks, chunks_with_pages, file.filename)
+    db = SessionLocal()
+    pdf_doc = PDFDocument(
+        filename=file.filename,
+        s3_key=s3_key,
+        chunk_count=chunk_count
+    )
+    db.add(pdf_doc)
+    db.commit()
+    db.close()
     
     return {
         "message": "PDF processed and stored successfully",
