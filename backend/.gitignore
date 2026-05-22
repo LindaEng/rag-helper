@@ -16,6 +16,6 @@ chroma_db/
 # IDE
 .vscode/
 .DS_Store
-
+.env
 # Model cache (this is big - 90MB)
 .cache/

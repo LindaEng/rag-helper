@@ -1,10 +1,10 @@
 import fitz
 import os
 
-def process_pdf(file_path: str):
+def process_pdf(file_obj):
     """Extract text from PDF and split into chunks"""
     
-    doc = fitz.open(file_path)
+    doc = fitz.open(stream=file_obj, filetype="pdf")
     chunks_with_pages = []
     seen_text = set()  # Track seen content
     
@@ -23,7 +23,6 @@ def process_pdf(file_path: str):
     
     doc.close()
     chunks = [chunk["text"] for chunk in chunks_with_pages]
-    os.unlink(file_path)
     return chunks, chunks_with_pages
 
 def split_text_with_page(text: str, page_num: int, chunk_size: int = 1000):
